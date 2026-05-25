@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Owner | Kasir Pempek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { 
+            /* Palet Warna Mahal & Organik Kasir Pempek */
+            --bg-base: #fdfbf7; 
+            --surface: #ffffff;
+            --brand-primary: #f59e0b;
+            --brand-dark: #ff6b00;
+            --brand-gradient: linear-gradient(135deg, #ff9f0e 0%, #ff5100 100%);
+            --text-title: #1e1b18;
+            --text-body: #6e675f;
+            --border-soft: rgba(243, 237, 227, 0.7);
+            
+            /* Gradasi Halus Status Box */
+            --m-emerald: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            --m-red: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            --m-amber: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            --m-blue: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+
+            /* Ambient Shadow Lembut */
+            --shadow-lux: 0 16px 40px -12px rgba(255, 107, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.02);
+            --shadow-card: 0 24px 48px -16px rgba(30, 27, 24, 0.04);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-base); color: var(--text-title); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- DESKTOP SIDEBAR --- */
+        .sidebar { 
+            width: 290px; background: var(--surface); height: 100vh; border-right: 1.5px solid var(--border-soft); 
+            position: fixed; padding: 45px 28px; display: flex; flex-direction: column; left: 0; top: 0; z-index: 100;
+        }
+        .sidebar h2 { font-size: 22px; font-weight: 800; color: var(--text-title); margin-bottom: 35px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
+        .sidebar h2 span { background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar .section-title { color: #a1978c; font-size: 11px; margin-bottom: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 15px; }
+        
+        .nav-container { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .nav-item { 
+            text-decoration: none; color: var(--text-body); display: flex; align-items: center; gap: 14px;
+            padding: 15px 20px; font-weight: 600; font-size: 14px; border-radius: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+        }
+        .nav-item:hover { color: #ff5100; background: #fff8f1; transform: translateX(4px); }
+        .nav-item.active { color: white; background: var(--brand-gradient); box-shadow: 0 10px 24px -8px rgba(255, 81, 0, 0.35); }
+        
+        .btn-logout { 
+            color: #ef4444; cursor: pointer; border: none; background: #fff5f5; font-weight: 700; 
+            padding: 15px 20px; border-radius: 18px; display: flex; align-items: center; gap: 14px; font-size: 14px; width: 100%; transition: 0.2s; margin-top: auto;
+        }
+        .btn-logout:hover { background: #ffebeb; }
+
+        /* --- MAIN CONTAINER --- */
+        .main { flex: 1; margin-left: 290px; padding: 0; width: calc(100% - 290px); min-height: 100vh; position: relative; }
+        
+        /* --- FLUID HEADER --- */
+        .fluid-header {
+            background: var(--brand-gradient);
+            padding: 60px 60px 100px 60px;
+            color: white;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .fluid-header-title h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .fluid-header-title p { color: rgba(255, 255, 255, 0.85); font-size: 15px; font-weight: 500; }
+        .fluid-header-title p span { font-weight: 700; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .fluid-header::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+            background: var(--bg-base); border-radius: 40px 40px 0 0;
+        }
+
+        /* --- CONTENT BODY --- */
+        .content-body { padding: 0 60px 60px 60px; margin-top: -50px; position: relative; z-index: 2; }
+
+        /* --- CARD DESIGN --- */
+        .card { 
+            background: var(--surface); padding: 36px; border-radius: 32px; 
+            border: 1px solid var(--border-soft); box-shadow: var(--shadow-card); margin-bottom: 35px; width: 100%; 
+        }
+        .card h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 24px; color: var(--text-title); display: flex; align-items: center; gap: 10px; }
+        
+        /* --- FILTER PANEL PREMIUM --- */
+        .filter-panel { 
+            background: var(--surface); padding: 24px 30px; border-radius: 24px; 
+            border: 1px solid var(--border-soft); box-shadow: var(--shadow-lux); margin-bottom: 35px; 
+            display: flex; flex-wrap: wrap; align-items: center; gap: 24px; 
+        }
+        .filter-group { display: flex; align-items: center; gap: 12px; }
+        .filter-title { font-size: 11px; font-weight: 800; color: #a1978c; text-transform: uppercase; letter-spacing: 0.05em; }
+        .input-date, .select-filter { 
+            padding: 12px 18px; border: 1.5px solid var(--border-soft); border-radius: 14px; 
+            font-size: 14px; font-weight: 600; color: var(--text-title); outline: none; background: #faf8f5;
+            transition: all 0.2s;
+        }
+        .input-date:focus, .select-filter:focus { border-color: var(--brand-dark); background: white; }
+        
+        /* --- ACTION BUTTONS --- */
+        .btn-add { 
+            padding: 14px 24px; background: var(--brand-gradient); color: white; border: none; 
+            border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; 
+            box-shadow: 0 10px 20px -6px rgba(255, 81, 0, 0.3); transition: 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -5px rgba(255, 81, 0, 0.4); }
+        
+        .btn-process { 
+            padding: 12px 22px; background: #1e1b18; color: white; border: none; 
+            border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; 
+            transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; 
+        }
+        .btn-process:hover { background: #3a3530; transform: translateY(-1px); }
+
+        .btn-print { 
+            padding: 12px 22px; background: #2563eb; color: white; border: none; 
+            border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; 
+            transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; 
+        }
+        .btn-print:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+        /* --- CSS LOADING SPINNER --- */
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
+            border-top-color: white; animation: spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- TAB MANAGEMENT --- */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* --- TABLE SYSTEM --- */
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 750px; }
+        th { 
+            text-align: left; padding: 18px 16px; background: #faf8f5; font-size: 11px; 
+            font-weight: 800; color: #a1978c; border-bottom: 2px solid var(--border-soft); text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        td { padding: 18px 16px; border-bottom: 1px solid var(--border-soft); font-size: 14px; font-weight: 600; color: var(--text-title); vertical-align: middle; }
+        tr:hover td { background-color: #fffdfa; }
+        tr:last-child td { border-bottom: none; }
+
+        .table-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border-soft); border-radius: 10px; font-size: 13px; font-weight: 600; outline: none; background: #faf8f5; }
+        .table-input:focus { border-color: var(--brand-dark); background: white; }
+        
+        .badge-outlet { background: #fff8f1; color: #ff5100; border: 1px solid rgba(255,81,0,0.15); padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; }
+        
+        .btn-edit { background: none; border: none; color: #2563eb; font-weight: 700; cursor: pointer; font-size: 14px; margin-right: 14px; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-delete { background: none; border: none; color: #ef4444; font-weight: 700; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-save { background: #16a34a; color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 12px; margin-right: 6px; }
+        .btn-cancel { background: #6e675f; color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 12px; }
+
+        /* --- GRAFIK CONTAINER --- */
+        .chart-wrapper { position: relative; height: 340px; width: 100%; margin-top: 15px; }
+
+        /* --- MODAL FORM --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 27, 24, 0.4); backdrop-filter: blur(4px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 40px; border-radius: 28px; width: 100%; max-width: 460px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); border: 1px solid var(--border-soft); }
+        .modal-content h3 { font-size: 20px; font-weight: 800; margin-bottom: 24px; color: var(--text-title); }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { font-size: 11px; font-weight: 800; color: #a1978c; display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-group input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border-soft); border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #faf8f5; }
+        .form-group input:focus { border-color: var(--brand-dark); background: white; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 28px; }
+
+        .overlay { display: none; }
+        .mobile-nav { display: none; }
+        .loading { text-align: center; color: var(--text-body); padding: 40px !important; font-weight: 600; font-size: 14px; }
+
+        /* --- FLOATING BOTTOM NAVIGATION (MOBILE) --- */
+        .bottom-nav { display: none; }
+
+        /* --- ATURAN CETAK (PRINT MEDIA STYLES) --- */
+        @media print {
+            .sidebar, .bottom-nav, .filter-panel, .btn-print, .btn-add, .fluid-header::after { display: none !important; }
+            .main { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
+            .fluid-header { background: transparent !important; color: black !important; padding: 20px 0 !important; }
+            .fluid-header-title h1 { color: black !important; }
+            .fluid-header-title p { color: #555 !important; }
+            .content-body { margin-top: 0 !important; padding: 0 !important; }
+            .card { border: none !important; box-shadow: none !important; padding: 10px 0 !important; page-break-inside: avoid; }
+            body { background: white !important; color: black !important; }
+        }
+
+        /* --- MOBILE SCREEN RESPONSIVE --- */
+        @media screen and (max-width: 1024px) {
+            body { padding-bottom: 110px; background: var(--bg-base); }
+            .sidebar { display: none; }
+            
+            .main { margin-left: 0; padding: 0; width: 100%; }
+            .fluid-header { padding: 50px 20px 90px 20px; flex-direction: column; gap: 20px; align-items: center; text-align: center; }
+            .fluid-header h1 { font-size: 26px; }
+            .fluid-header p { font-size: 13px; }
+            
+            .content-body { padding: 0 16px; margin-top: -45px; }
+            .filter-panel { padding: 20px 16px; border-radius: 24px; gap: 16px; margin-bottom: 20px; box-shadow: var(--shadow-card); border: none; }
+            .filter-group { width: 100%; flex-direction: column; align-items: flex-start; gap: 6px; }
+            .input-date, .select-filter { width: 100%; }
+            .btn-process, .btn-add { width: 100%; justify-content: center; }
+
+            .card { padding: 26px 16px; border-radius: 28px; box-shadow: var(--shadow-card); border: none; margin-bottom: 20px; }
+
+            /* Bottom Nav Melayang Premium */
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 20px; left: 20px; right: 20px; 
+                background: #1e1b18; height: 76px; border-radius: 28px;
+                box-shadow: 0 20px 40px rgba(30, 27, 24, 0.25);
+                z-index: 999; justify-content: space-around; align-items: center; padding: 0 10px;
+                border: 1px solid rgba(255,255,255,0.04);
+            }
+            .bottom-nav-item {
+                display: flex; flex-direction: column; align-items: center; text-decoration: none;
+                color: #8c8275; font-size: 10px; font-weight: 700; transition: all 0.25s;
+                height: 100%; justify-content: center; gap: 5px; position: relative; width: 65px; cursor: pointer;
+            }
+            .bottom-nav-item svg { width: 22px; height: 22px; color: #8c8275; }
+            
+            .bottom-nav-item.active { color: #ffffff; }
+            .bottom-nav-item.active svg { color: #ff9f0e; transform: translateY(-4px) scale(1.1); }
+            .bottom-nav-item.active::after {
+                content: ''; position: absolute; bottom: 8px; width: 5px; height: 5px; background: #ff9f0e; border-radius: 50%;
+            }
+            .bottom-nav-item.logout-mobile { color: #ff4d4d; }
+            .bottom-nav-item.logout-mobile svg { color: #ff4d4d; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <h2>🥟 <span>Kasir Pempek</span></h2>
+        
+        <p class="section-title">Monitoring</p>
+        <div class="nav-container">
+            <div onclick="switchTab('rekap-harian')" id="menu-rekap" class="nav-item active">
+                <i data-lucide="layout-grid"></i> Rekap Harian
+            </div>
+            <div onclick="switchTab('laporan-analisis')" id="menu-laporan" class="nav-item">
+                <i data-lucide="line-chart"></i> Laporan & Grafik
+            </div>
+            
+            <p class="section-title">Pengaturan</p>
+            <div onclick="switchTab('kelola-cabang')" id="menu-kelola" class="nav-item">
+                <i data-lucide="store"></i> Kelola Cabang
+            </div>
+        </div>
+
+        <button onclick="logout()" class="btn-logout">
+            <i data-lucide="power"></i> Keluar Sesi
+        </button>
+    </div>
+
+    <div class="main">
+        
+        <div id="tab-rekap-harian" class="tab-content active">
+            <div class="fluid-header">
+                <div class="fluid-header-title">
+                    <h1>Monitoring Riwayat Cabang</h1>
+                    <p>Selamat datang kembali, <span id="namaOwner">Owner</span> Pusat 👑</p>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <div class="filter-title">Pilih Hari Riwayat:</div>
+                        <input type="date" id="filterTanggal" class="input-date" onchange="muatRiwayatHarianOwner()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i data-lucide="activity" style="color:var(--brand-dark); width:18px; height:18px;"></i> Live Hasil Rekapitulasi Penjualan Keliling</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NAMA CABANG</th>
+                                    <th style="text-align: center;">TOTAL PORSI TERJUAL</th>
+                                    <th style="text-align: right;">TOTAL OMSET HARIAN</th>
+                                    <th style="text-align: right;">WAKTU SINKRONISASI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelPerformaCabang">
+                                <tr><td colspan="4" class="loading">Memuat data rekap keliling cabang...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-laporan-analisis" class="tab-content">
+            <div class="fluid-header">
+                <div class="fluid-header-title">
+                    <h1>Laporan Analisis Omset Custom Periode</h1>
+                    <p>Akumulasi data penjualan porsi berdasarkan rentang tanggal yang Anda tentukan sendiri.</p>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <div class="filter-title">Dari:</div>
+                        <input type="date" id="analitikStartDate" class="input-date">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-title">Sampai:</div>
+                        <input type="date" id="analitikEndDate" class="input-date">
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-title">Cabang:</div>
+                        <select id="filterCabangAnalitik" class="select-filter" onchange="prosesTampilanGrafikDanTabel()">
+                            <option value="semua">-- Semua Cabang (Matriks) --</option>
+                        </select>
+                    </div>
+                    <button class="btn-process" id="btnProsesAnalitik" onclick="muatDataAnalitikServer()">
+                        <i data-lucide="search" style="width:16px; height:16px;"></i> Proses Data
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3><i data-lucide="trending-up" style="color:var(--brand-dark); width:18px; height:18px;"></i> Visualisasi Tren Penjualan Porsi Harian dalam Rentang Waktu</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="canvasGrafikOwner"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap:10px;">
+                        <h3 style="margin: 0;"><i data-lucide="file-text" style="color:#2563eb; width:18px; height:18px;"></i> Rincian Data Angka Penjualan Berkala</h3>
+                        <button class="btn-print" onclick="window.print()">
+                            <i data-lucide="printer" style="width:16px; height:16px;"></i> Cetak Laporan
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NAMA CABANG</th>
+                                    <th style="text-align: right;">TOTAL PORSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelLaporanBerkala">
+                                <tr><td style="text-align:center; padding:20px; color:#a1978c;">Tentukan rentang tanggal lalu klik 'Proses Data' untuk menarik info database...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-kelola-cabang" class="tab-content">
+            <div class="fluid-header">
+                <div class="fluid-header-title">
+                    <h1>Pengaturan Kelola Cabang</h1>
+                    <p>Ubah info outlet, kelola username, dan kelola password penanggung jawab kasir.</p>
+                </div>
+                <button class="btn-add" onclick="bukaModalTambah()">
+                    <i data-lucide="plus-circle" style="width:16px; height:16px;"></i> Tambah Cabang
+                </button>
+            </div>
+
+            <div class="content-body">
+                <div class="card">
+                    <h3><i data-lucide="database" style="color:var(--brand-dark); width:18px; height:18px;"></i> Daftar Pengguna Sistem & Basis Data Cabang</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NAMA CABANG</th>
+                                    <th>ID SPREADSHEET DATABASE</th>
+                                    <th>USERNAME LOGIN</th>
+                                    <th>PASSWORD</th>
+                                    <th style="text-align: right;">AKSI OPERASIONAL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelMasterCabang">
+                                <tr><td colspan="5" class="loading">Mendapatkan data pengguna dari server...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <a onclick="switchTab('rekap-harian')" id="mob-menu-rekap" class="bottom-nav-item active">
+            <i data-lucide="layout-grid"></i>Rekap
+        </a>
+        <a onclick="switchTab('laporan-analisis')" id="mob-menu-laporan" class="bottom-nav-item">
+            <i data-lucide="line-chart"></i>Laporan
+        </a>
+        <a onclick="switchTab('kelola-cabang')" id="mob-menu-kelola" class="bottom-nav-item">
+            <i data-lucide="store"></i>Cabang
+        </a>
+        <a onclick="logout()" class="bottom-nav-item logout-mobile">
+            <i data-lucide="power"></i>Keluar
+        </a>
+    </div>
+
+    <div class="modal" id="modalCabang">
+        <div class="modal-content">
+            <h3>Pendaftaran Cabang Baru</h3>
+            <div class="form-group">
+                <label>Nama Cabang / Outlet</label>
+                <input type="text" id="addNama" placeholder="Contoh: Sako">
+            </div>
+            <div class="form-group">
+                <label>ID Spreadsheet Cabang</label>
+                <input type="text" id="addWilayah" placeholder="Masukkan ID spreadsheet cabang">
+            </div>
+            <div class="form-group">
+                <label>Username Kasir</label>
+                <input type="text" id="addUser" placeholder="User untuk login">
+            </div>
+            <div class="form-group">
+                <label>Password Kasir</label>
+                <input type="text" id="addPass" placeholder="Password untuk login">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="tutupModalTambah()">Batal</button>
+                <button class="btn-save" onclick="simpanCabangBaru()">Daftarkan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL Web App Google Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycbwhJciXmzHgRZlYp7S-iPclTnV9Z7-cc-psrK8r7g6dj0gYXom1g6s8mJnI5k371cmgtA/exec"; 
+        
+        let dataGlobalCabang = []; 
+        let dataGlobalAnalytics = null; 
+        let instanceGrafik = null;     
+
+        // Fungsi toggle dinonaktifkan karena beralih ke model navbar bawah melayang premium
+        function toggleSidebar() {}
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            // Reset active states sidebar desktop
+            document.getElementById('menu-rekap').classList.remove('active');
+            document.getElementById('menu-laporan').classList.remove('active');
+            document.getElementById('menu-kelola').classList.remove('active');
+
+            // Reset active states navbar mobile
+            document.getElementById('mob-menu-rekap').classList.remove('active');
+            document.getElementById('mob-menu-laporan').classList.remove('active');
+            document.getElementById('mob-menu-kelola').classList.remove('active');
+
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if(tabName === 'rekap-harian') {
+                document.getElementById('menu-rekap').classList.add('active');
+                document.getElementById('mob-menu-rekap').classList.add('active');
+                muatRiwayatHarianOwner();
+            } else if (tabName === 'laporan-analisis') {
+                document.getElementById('menu-laporan').classList.add('active');
+                document.getElementById('mob-menu-laporan').classList.add('active');
+                
+                const end = new Date();
+                const start = new Date();
+                start.setDate(start.getDate() - 7);
+                
+                document.getElementById("analitikStartDate").value = start.toISOString().split('T')[0];
+                document.getElementById("analitikEndDate").value = end.toISOString().split('T')[0];
+            } else {
+                document.getElementById('menu-kelola').classList.add('active');
+                document.getElementById('mob-menu-kelola').classList.add('active');
+                muatDataMasterCabang();
+            }
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem("isLoggedIn") !== "true") {
+                window.location.href = "login.html";
+                return;
+            }
+            document.getElementById("namaOwner").innerText = localStorage.getItem("nama") || "Owner";
+
+            const hariIni = new Date();
+            hariIni.setHours(hariIni.getHours() + 7); 
+            document.getElementById("filterTanggal").value = hariIni.toISOString().split('T')[0];
+
+            muatRiwayatHarianOwner();
+            lucide.createIcons();
+        };
+
+        // ================= TAB 1: LOGIKA RIWAYAT HARIAN REAL-TIME =================
+        async function muatRiwayatHarianOwner() {
+            const tanggalDipilih = document.getElementById("filterTanggal").value;
+            const tabel = document.getElementById("tabelPerformaCabang");
+            tabel.innerHTML = `<tr><td colspan="4" class="loading">⏳ Menghitung riwayat penjualan harian (${tanggalDipilih})...</td></tr>`;
+
+            try {
+                const response = await fetch(`${API_URL}?action=getOwnerMonitoring&tanggal=${tanggalDipilih}`);
+                const listCabang = await response.json();
+                let html = "";
+                
+                if (!listCabang || listCabang.length === 0) {
+                    html = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-body);">Tidak ada data riwayat transaksi penjualan pada tanggal ini.</td></tr>`;
+                } else {
+                    listCabang.forEach(cabang => {
+                        html += `<tr>
+                            <td><span class="badge-outlet">${cabang[0]}</span></td>
+                            <td style="text-align:center; font-weight:700; color:#ef4444;">${cabang[1]} Porsi</td>
+                            <td style="text-align:right; font-weight:700; color:#16a34a;">Rp ${(parseInt(cabang[2]) || 0).toLocaleString('id-ID')}</td>
+                            <td style="text-align:right; color:var(--text-body); font-size:13px; font-weight:500;">${cabang[3]} WIB</td>
+                        </tr>`;
+                    });
+                }
+                tabel.innerHTML = html;
+            } catch (error) {
+                tabel.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ef4444; padding:30px; font-weight:700;">❌ Gagal memuat data rekap riwayat harian.</td></tr>`;
+            }
+        }
+
+        // ================= TAB 3: AMBIL DATA ANALITIK BERDASARKAN FILTER TANGGAL =================
+        async function muatDataAnalitikServer() {
+            const startDate = document.getElementById("analitikStartDate").value;
+            const endDate = document.getElementById("analitikEndDate").value;
+            const btnProses = document.getElementById("btnProsesAnalitik");
+            
+            if(!startDate || !endDate) return alert("Mohon tentukan tanggal awal dan tanggal akhir!");
+            
+            const tabel = document.getElementById("tabelLaporanBerkala");
+            tabel.innerHTML = `<tr><td style="text-align:center; padding:30px;" class="loading">⏳ Sedang memproses data filter tanggal dari database...</td></tr>`;
+            
+            btnProses.disabled = true;
+            btnProses.innerHTML = `<span class="spinner"></span> Memuat...`;
+            
+            try {
+                const response = await fetch(`${API_URL}?action=getOwnerAnalytics&start_date=${startDate}&end_date=${endDate}`);
+                dataGlobalAnalytics = await response.json();
+                
+                const cabangTerpilihLama = document.getElementById("filterCabangAnalitik").value;
+                const selectCabang = document.getElementById("filterCabangAnalitik");
+                selectCabang.innerHTML = `<option value="semua">-- Semua Cabang (Matriks) --</option>`;
+                
+                for (let namaCabang in dataGlobalAnalytics.data_cabang) {
+                    selectCabang.innerHTML += `<option value="${namaCabang}">${namaCabang}</option>`;
+                }
+
+                if(dataGlobalAnalytics.data_cabang[cabangTerpilihLama]) {
+                    selectCabang.value = cabangTerpilihLama;
+                }
+
+                prosesTampilanGrafikDanTabel();
+            } catch (e) {
+                tabel.innerHTML = `<tr><td style="text-align:center; color:#ef4444; padding:30px; font-weight:700;">❌ Gagal memproses data laporan berkala cabang.</td></tr>`;
+            } finally {
+                btnProses.disabled = false;
+                btnProses.innerHTML = `<i data-lucide="search" style="width:16px; height:16px;"></i> Proses Data`;
+                lucide.createIcons();
+            }
+        }
+
+        function prosesTampilanGrafikDanTabel() {
+            if (!dataGlobalAnalytics) return;
+
+            const daftarPeriode = dataGlobalAnalytics.daftar_periode; 
+            const dataCabang = dataGlobalAnalytics.data_cabang;
+            const cabangDipilih = document.getElementById("filterCabangAnalitik").value;
+            const tabel = document.getElementById("tabelLaporanBerkala");
+            
+            if (daftarPeriode.length === 0) {
+                tabel.innerHTML = `<tr><td style="text-align:center; padding:30px; color:var(--text-body);">Tidak ada rekaman transaksi penjualan di rentang tanggal ini.</td></tr>`;
+                if(instanceGrafik) instanceGrafik.destroy();
+                return;
+            }
+
+            let htmlHeader = `<tr><th>NAMA CABANG</th>`;
+            daftarPeriode.forEach(p => {
+                let tglSingkat = p.substring(5); 
+                htmlHeader += `<th style="text-align: center;">${tglSingkat}</th>`;
+            });
+            htmlHeader += `<th style="text-align: right; background: #faf8f5;">TOTAL PORSI</th></tr>`;
+            tabel.closest('table').querySelector('thead').innerHTML = htmlHeader;
+
+            let dataPorsiGrafik = [];
+            let labelGrafik = `Total Porsi Gabungan Semua Cabang`;
+
+            let htmlBody = "";
+            let totalPerPeriode = {}; 
+            let grandTotalSemuaPorsi = 0;
+            daftarPeriode.forEach(p => totalPerPeriode[p] = 0);
+
+            if (cabangDipilih === "semua") {
+                for (let namaCabang in dataCabang) {
+                    let totalPorsiCabangIni = 0;
+                    htmlBody += `<tr><td><span class="badge-outlet">${namaCabang}</span></td>`;
+                    
+                    daftarPeriode.forEach(p => {
+                        let porsi = dataCabang[namaCabang][p] || 0;
+                        totalPorsiCabangIni += porsi;
+                        totalPerPeriode[p] += porsi; 
+                        htmlBody += `<td style="text-align:center; font-weight:600;">${porsi.toLocaleString('id-ID')}</td>`;
+                    });
+
+                    grandTotalSemuaPorsi += totalPorsiCabangIni;
+                    htmlBody += `<td style="text-align:right; font-weight:700; background: #fffdfa; color: var(--text-title);">${totalPorsiCabangIni.toLocaleString('id-ID')} Porsi</td></tr>`;
+                }
+
+                htmlBody += `<tr style="background: #fff8f1; font-weight: 700; border-top: 2px solid var(--brand-primary);">
+                                <td style="color: var(--text-title); font-weight:800;">🔥 TOTAL SELURUHNYA</td>`;
+                daftarPeriode.forEach(p => {
+                    htmlBody += `<td style="text-align:center; color: #ef4444; font-weight:800;">${totalPerPeriode[p].toLocaleString('id-ID')}</td>`;
+                    dataPorsiGrafik.push(totalPerPeriode[p]); 
+                });
+                
+                let totalOmsetSemua = grandTotalSemuaPorsi * 1000;
+                htmlBody += `<td style="text-align:right; color: #16a34a; font-size:15px; font-weight:800;">Rp ${totalOmsetSemua.toLocaleString('id-ID')}</td></tr>`;
+
+            } else {
+                labelGrafik = `Tren Penjualan Harian - Cabang ${cabangDipilih}`;
+                let totalPorsiCabangSpesifik = 0;
+                
+                htmlBody += `<tr><td><span class="badge-outlet">${cabangDipilih}</span></td>`;
+                
+                daftarPeriode.forEach(p => {
+                    let porsi = (dataCabang[cabangDipilih] && dataCabang[cabangDipilih][p]) ? dataCabang[cabangDipilih][p] : 0;
+                    totalPorsiCabangSpesifik += porsi;
+                    dataPorsiGrafik.push(porsi); 
+                    htmlBody += `<td style="text-align:center; font-weight:600;">${porsi.toLocaleString('id-ID')}</td>`;
+                });
+
+                htmlBody += `<td style="text-align:right; font-weight:700; background: #fffdfa; color: var(--text-title);">${totalPorsiCabangSpesifik.toLocaleString('id-ID')} Porsi</td></tr>`;
+                
+                let omsetSpesifik = totalPorsiCabangSpesifik * 1000;
+                htmlBody += `<tr style="background: #dcfce7; font-weight: 700;">
+                                <td colspan="${daftarPeriode.length + 1}" style="color: #16a34a; font-weight:800;">💰 ESTIMASI OMSET KOTOR CABANG ${cabangDipilih.toUpperCase()}</td>
+                                <td style="text-align:right; color: #16a34a; font-size:15px; font-weight:800;">Rp ${omsetSpesifik.toLocaleString('id-ID')}</td>
+                             </tr>`;
+            }
+
+            tabel.innerHTML = htmlBody;
+
+            // 3. RENDERING GRAFIK TREN LINE CHART PREMIUM
+            const ctx = document.getElementById('canvasGrafikOwner').getContext('2d');
+            if (instanceGrafik) { instanceGrafik.destroy(); }
+
+            instanceGrafik = new Chart(ctx, {
+                type: 'line', 
+                data: {
+                    labels: daftarPeriode,
+                    datasets: [{
+                        label: labelGrafik,
+                        data: dataPorsiGrafik,
+                        backgroundColor: 'rgba(255, 107, 0, 0.05)',
+                        borderColor: '#ff6b00',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ff9f0e',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { font: { family: 'Plus Jakarta Sans', weight: 600 } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(243, 237, 227, 0.5)' }, ticks: { font: { family: 'Plus Jakarta Sans' } } },
+                        x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans' } } }
+                    }
+                }
+            });
+        }
+
+        // ================= TAB 2: MANAGEMENT CRUD SINKRONISASI USER =================
+        async function muatDataMasterCabang() {
+            const tabel = document.getElementById("tabelMasterCabang");
+            tabel.innerHTML = `<tr><td colspan="5" class="loading">⏳ Mengambil konfigurasi pengguna database...</td></tr>`;
+
+            try {
+                const response = await fetch(`${API_URL}?action=getUsersList`);
+                dataGlobalCabang = await response.json();
+                renderTabelMaster();
+            } catch (error) {
+                tabel.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444; padding:30px; font-weight:700;">❌ Gagal memuat data dari tabel spreadsheet.</td></tr>`;
+            }
+        }
+
+        function renderTabelMaster() {
+            const tabel = document.getElementById("tabelMasterCabang");
+            let html = "";
+
+            if(dataGlobalCabang.length === 0) {
+                tabel.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--text-body);">Belum ada cabang terdaftar.</td></tr>`;
+                return;
+            }
+
+            dataGlobalCabang.forEach((cabang, index) => {
+                if(cabang.role === "owner" || cabang.outlet.toLowerCase() === "pusat") return; 
+
+                html += `<tr id="row-${index}">
+                    <td><span class="badge-outlet">${cabang.outlet}</span></td>
+                    <td><small style="color:var(--text-body); font-family:monospace; display:block; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700;" title="${cabang.wilayah_id}">${cabang.wilayah_id || '-'}</small></td>
+                    <td><b>${cabang.user}</b></td>
+                    <td><span style="font-family:monospace; font-weight:700; color:#475569;">${cabang.pass}</span></td>
+                    <td style="text-align: right;">
+                        <button class="btn-edit" onclick="aktifkanModeEdit(${index})">📝 Edit</button>
+                        <button class="btn-delete" onclick="hapusCabang(${index}, '${cabang.user}')">🗑️ Hapus</button>
+                    </td>
+                </tr>`;
+            });
+            tabel.innerHTML = html;
+        }
+
+        function aktifkanModeEdit(index) {
+            const row = document.getElementById(`row-${index}`);
+            const cabang = dataGlobalCabang[index];
+
+            row.innerHTML = `
+                <td><input type="text" id="editOutlet-${index}" class="table-input" value="${cabang.outlet}"></td>
+                <td><input type="text" id="editWilayah-${index}" class="table-input" value="${cabang.wilayah_id || ''}"></td>
+                <td><input type="text" id="editUser-${index}" class="table-input" value="${cabang.user}" disabled style="background:#f1f5f9; color:#a1978c; font-weight:700;"></td>
+                <td><input type="text" id="editPass-${index}" class="table-input" value="${cabang.pass}"></td>
+                <td style="text-align: right;">
+                    <button class="btn-save" onclick="simpanPerubahanBaris(${index})">💾 Simpan</button>
+                    <button class="btn-cancel" onclick="renderTabelMaster()">Batal</button>
+                </td>
+            `;
+        }
+
+        async function simpanPerubahanBaris(index) {
+            const outletBaru = document.getElementById(`editOutlet-${index}`).value.trim();
+            const wilayahBaru = document.getElementById(`editWilayah-${index}`).value.trim();
+            const userKunci = document.getElementById(`editUser-${index}`).value.trim();
+            const passBaru = document.getElementById(`editPass-${index}`).value.trim();
+            const namaPenggunaBaru = "Kasir " + outletBaru;
+
+            if(!outletBaru || !passBaru) return alert("Nama Cabang dan Password tidak boleh kosong!");
+
+            try {
+                const url = `${API_URL}?action=updateUser&user=${encodeURIComponent(userKunci)}&nama_pengguna=${encodeURIComponent(namaPenggunaBaru)}&outlet=${encodeURIComponent(outletBaru)}&wilayah_id=${encodeURIComponent(wilayahBaru)}&pass=${encodeURIComponent(passBaru)}`;
+                const res = await fetch(url).then(r => r.json());
+
+                if(res.success) {
+                    alert("Data database cabang berhasil diperbarui!");
+                    muatDataMasterCabang();
+                } else {
+                    alert("Gagal memperbarui: " + res.msg);
+                }
+            } catch (e) {
+                alert("Koneksi gagal saat menyimpan data.");
+            }
+        }
+
+        async function hapusCabang(index, username) {
+            if(!confirm(`Apakah kamu yakin ingin menghapus akses cabang dengan username '${username}'?`)) return;
+
+            try {
+                const url = `${API_URL}?action=deleteUser&user=${encodeURIComponent(username)}`;
+                const res = await fetch(url).then(r => r.json());
+
+                if(res.success) {
+                    alert("Cabang berhasil dihapus!");
+                    muatDataMasterCabang();
+                } else {
+                    alert("Gagal menghapus: " + res.msg);
+                }
+            } catch (e) {
+                alert("Koneksi gagal saat menghapus data.");
+            }
+        }
+
+        function bukaModalTambah() { document.getElementById("modalCabang").style.display = "flex"; }
+        function tutupModalTambah() { document.getElementById("modalCabang").style.display = "none"; }
+
+        async function simpanCabangBaru() {
+            const outlet = document.getElementById("addNama").value.trim();
+            const wilayahId = document.getElementById("addWilayah").value.trim(); 
+            const user = document.getElementById("addUser").value.trim();
+            const pass = document.getElementById("addPass").value.trim();
+            const namaPengguna = "Kasir " + outlet;
+
+            if(!outlet || !user || !pass) return alert("Mohon lengkapi field Nama, Username, dan Password!");
+
+            try {
+                const url = `${API_URL}?action=addUser&nama_pengguna=${encodeURIComponent(namaPengguna)}&outlet=${encodeURIComponent(outlet)}&wilayah_id=${encodeURIComponent(wilayahId)}&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
+                const res = await fetch(url).then(r => r.json());
+
+                if(res.success) {
+                    alert("Cabang Baru Berhasil Didaftarkan!");
+                    tutupModalTambah();
+                    muatDataMasterCabang();
+                } else {
+                    alert("Gagal mendaftarkan: " + res.msg);
+                }
+            } catch (e) {
+                alert("Koneksi bermasalah saat menambah data.");
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

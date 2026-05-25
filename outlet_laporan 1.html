@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Performa Premium | Kasir Pempek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { 
+            /* Palet Warna Mahal & Organik (Perpaduan Gambar 1 & 2) */
+            --bg-base: #fdfbf7; /* Khas Aplikasi Kuliner Premium (Warm Off-White) */
+            --surface: #ffffff;
+            --brand-primary: #f59e0b;
+            --brand-dark: #ff6b00;
+            --brand-gradient: linear-gradient(135deg, #ff9f0e 0%, #ff5100 100%);
+            --text-title: #1e1b18;
+            --text-body: #6e675f;
+            --border-soft: rgba(243, 237, 227, 0.7);
+            
+            /* Gradasi Halus untuk Kotak Metrik */
+            --m-blue: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            --m-red: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            --m-amber: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            --m-emerald: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+
+            /* Ambient Shadow Lembut (Tidak kaku) */
+            --shadow-lux: 0 16px 40px -12px rgba(255, 107, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.02);
+            --shadow-card: 0 24px 48px -16px rgba(30, 27, 24, 0.04);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-base); color: var(--text-title); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- DESKTOP SIDEBAR (GLASS-NEUMORPHISM STYLE) --- */
+        .sidebar { 
+            width: 290px; background: var(--surface); height: 100vh; border-right: 1.5px solid var(--border-soft); 
+            position: fixed; padding: 45px 28px; display: flex; flex-direction: column; left: 0; top: 0; z-index: 100;
+        }
+        .sidebar h2 { font-size: 22px; font-weight: 800; color: var(--text-title); margin-bottom: 45px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
+        .sidebar h2 span { background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar .section-title { color: #a1978c; font-size: 11px; margin-bottom: 18px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        
+        .nav-container { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+        .nav-item { 
+            text-decoration: none; color: var(--text-body); display: flex; align-items: center; gap: 14px;
+            padding: 15px 20px; font-weight: 600; font-size: 14px; border-radius: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .nav-item:hover { color: #ff5100; background: #fff8f1; transform: translateX(4px); }
+        .nav-item.active { color: white; background: var(--brand-gradient); box-shadow: 0 10px 24px -8px rgba(255, 81, 0, 0.35); }
+        
+        .btn-logout { 
+            color: #ef4444; cursor: pointer; border: none; background: #fff5f5; font-weight: 700; 
+            padding: 15px 20px; border-radius: 18px; display: flex; align-items: center; gap: 14px; font-size: 14px; width: 100%; transition: 0.2s;
+        }
+        .btn-logout:hover { background: #ffebeb; }
+
+        /* --- MAIN CONTAINER --- */
+        .main { flex: 1; margin-left: 290px; padding: 0; width: calc(100% - 290px); min-height: 100vh; position: relative; }
+        
+        /* --- WAVE HEADER (Adaptasi Desain Fluid Gambar 1 & 2) --- */
+        .fluid-header {
+            background: var(--brand-gradient);
+            padding: 60px 60px 100px 60px;
+            color: white;
+            position: relative;
+        }
+        .fluid-header h1 { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .fluid-header p { color: rgba(255, 255, 255, 0.85); font-size: 15px; font-weight: 500; }
+        
+        /* Lengkungan Halus Pemisah Konten */
+        .fluid-header::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+            background: var(--bg-base); border-radius: 40px 40px 0 0;
+        }
+
+        /* --- WRAPPER UNTUK KONTEN DALAM --- */
+        .content-body { padding: 0 60px 60px 60px; margin-top: -50px; position: relative; z-index: 2; }
+
+        /* --- METRICS GRID (SQUIRCLE ELEVATED BOX) --- */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .metric-box { 
+            padding: 26px; border-radius: 28px; background: var(--surface); border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-lux); display: flex; align-items: center; gap: 20px; transition: all 0.3s ease;
+        }
+        .metric-box:hover { transform: translateY(-5px); box-shadow: 0 20px 35px -10px rgba(255, 107, 0, 0.15); }
+        
+        .metric-icon-wrapper {
+            width: 58px; height: 58px; border-radius: 20px; display: flex; align-items: center; justify-content: center;
+        }
+        .metric-box.blue .metric-icon-wrapper { background: var(--m-blue); color: #0284c7; }
+        .metric-box.red .metric-icon-wrapper { background: var(--m-red); color: #dc2626; }
+        .metric-box.amber .metric-icon-wrapper { background: var(--m-amber); color: #d97706; }
+        .metric-box.emerald .metric-icon-wrapper { background: var(--m-emerald); color: #059669; }
+
+        .metric-info p { font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+        .metric-info h2 { font-size: 26px; font-weight: 800; color: var(--text-title); letter-spacing: -0.5px; }
+
+        /* --- PREMIUM CARD DESIGN --- */
+        .card { 
+            background: var(--surface); padding: 36px; border-radius: 32px; 
+            border: 1px solid var(--border-soft); box-shadow: var(--shadow-card); margin-bottom: 35px; width: 100%; 
+        }
+        .card h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 24px; color: var(--text-title); }
+        
+        /* --- FILTERS PANEL (CLEAN ROUNDED INTERFACE) --- */
+        .filter-wrapper { 
+            display: flex; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; align-items: flex-end; 
+            background: #fbf9f5; padding: 24px; border-radius: 24px; border: 1px solid var(--border-soft);
+        }
+        .filter-group { display: flex; flex-direction: column; min-width: 180px; flex: 1; }
+        label { display: block; font-size: 11px; font-weight: 800; color: #a1978c; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        select, input { 
+            padding: 14px 18px; border: 1.5px solid #eaddca; border-radius: 16px; 
+            font-size: 14px; font-weight: 600; outline: none; background: var(--surface); color: var(--text-title); width: 100%; transition: all 0.2s ease;
+        }
+        select:focus, input:focus { border-color: #ff6b00; box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.15); }
+        
+        .btn-reset-filter { 
+            padding: 14px 24px; background: #ebdccb; border: none; border-radius: 16px; 
+            font-weight: 700; font-size: 14px; color: #5c534c; cursor: pointer; height: 51px; transition: all 0.2s;
+        }
+        .btn-reset-filter:hover { background: #dccab5; }
+
+        /* --- GRAPHICS --- */
+        .chart-container { position: relative; height: 340px; width: 100%; }
+
+        /* --- PREMIUM TABLE APP DESIGN --- */
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { 
+            text-align: left; padding: 18px 24px; background: #faf8f5; font-size: 11px; 
+            font-weight: 800; color: #a1978c; border-bottom: 2px solid var(--border-soft); text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        td { padding: 20px 24px; border-bottom: 1px solid var(--border-soft); font-size: 14px; font-weight: 600; color: var(--text-title); vertical-align: middle; }
+        tr:hover td { background-color: #fffdfa; }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Soft Luxury Pill Badges */
+        .badge { padding: 6px 14px; border-radius: 14px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-habis { background: #fee2e2; color: #991b1b; }
+        .badge-sisa { background: #fef3c7; color: #92400e; }
+
+        /* --- FLOATING BOTTOM NAVIGATION (HANYA AKTIF DI SMARTPHONE) --- */
+        .bottom-nav { display: none; }
+
+        /* --- MOBILE SCREEN PERFECTION (MODEL SESUAI CONTOH GAMBAR) --- */
+        @media screen and (max-width: 1024px) {
+            body { padding-bottom: 110px; background: var(--bg-base); }
+            .sidebar { display: none; }
+            
+            .main { margin-left: 0; padding: 0; width: 100%; }
+            .fluid-header { padding: 50px 20px 90px 20px; text-align: center; }
+            .fluid-header h1 { font-size: 26px; }
+            .fluid-header p { font-size: 13px; }
+            
+            .content-body { padding: 0 16px; margin-top: -45px; }
+
+            /* Grid Responsif Cantik di HP */
+            .metrics-grid { gap: 14px; grid-template-columns: repeat(2, 1fr); margin-bottom: 24px; }
+            .metric-box { padding: 18px 14px; border-radius: 24px; gap: 10px; flex-direction: column; align-items: center; text-align: center; box-shadow: var(--shadow-card); }
+            .metric-icon-wrapper { width: 48px; height: 48px; border-radius: 16px; }
+            .metric-icon-wrapper svg { width: 22px; height: 22px; }
+            .metric-info p { font-size: 10px; margin-bottom: 2px; }
+            .metric-info h2 { font-size: 18px; }
+
+            /* Konten Card */
+            .card { padding: 26px 16px; border-radius: 28px; box-shadow: var(--shadow-card); border: none; margin-bottom: 20px; }
+            .filter-wrapper { padding: 18px; border-radius: 20px; gap: 12px; }
+            
+            /* WAVE BOTTOM NAVIGATION (Sangat Mirip Pola Melengkung Gambar 1) */
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 20px; left: 20px; right: 20px; 
+                background: #1e1b18; /* Dark Base Premium (Kontras Mahal) */
+                height: 76px; border-radius: 28px;
+                box-shadow: 0 20px 40px rgba(30, 27, 24, 0.25);
+                z-index: 999; justify-content: space-around; align-items: center; padding: 0 10px;
+                border: 1px solid rgba(255,255,255,0.04);
+            }
+            .bottom-nav-item {
+                display: flex; flex-direction: column; align-items: center; text-decoration: none;
+                color: #8c8275; font-size: 10px; font-weight: 700; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                height: 100%; justify-content: center; gap: 5px; position: relative; width: 60px;
+            }
+            .bottom-nav-item svg { width: 22px; height: 22px; color: #8c8275; transition: all 0.25s; }
+            
+            /* Efek Fokus Melengkung Menonjol ke Atas */
+            .bottom-nav-item.active { color: #ffffff; }
+            .bottom-nav-item.active svg { 
+                color: #ff9f0e; 
+                transform: translateY(-4px) scale(1.1); 
+            }
+            .bottom-nav-item.active::after {
+                content: ''; position: absolute; bottom: 8px; width: 5px; height: 5px; background: #ff9f0e; border-radius: 50%;
+            }
+            .bottom-nav-item.logout-mobile { color: #ff4d4d; }
+            .bottom-nav-item.logout-mobile svg { color: #ff4d4d; }
+        }
+
+        @media screen and (max-width: 480px) {
+            .filter-group { min-width: 100%; }
+            .btn-reset-filter { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <h2>🥟 <span>Kasir Pempek</span></h2>
+        <p class="section-title">Menu Utama</p>
+        <div class="nav-container">
+            <a href="outlet_dashboard1.html" class="nav-item ">
+                <i data-lucide="layout-grid"></i> Dashboard
+            </a>
+            <a href="outlet_stok1.html" class="nav-item">
+                <i data-lucide="layers"></i> Stok Menu
+            </a>
+            <a href="outlet_jual1.html" class="nav-item ">
+                <i data-lucide="calculator"></i> Pencatatan Jual
+            </a>
+            <a href="outlet_laporan 1.html" class="nav-item active">
+                <i data-lucide="line-chart"></i> Laporan
+            </a>
+        </div>
+        <button onclick="logout()" class="btn-logout">
+            <i data-lucide="power"></i> Keluar Sesi
+        </button>
+    </div>
+
+    <div class="main">
+        <div class="fluid-header">
+            <h1>Laporan Performa</h1>
+            <p>Analisis akumulasi penjualan harian dan sisa stok pasca penutupan shift kasir.</p>
+        </div>
+
+        <div class="content-body">
+            <div class="metrics-grid">
+                <div class="metric-box blue">
+                    <div class="metric-icon-wrapper"><i data-lucide="package-open"></i></div>
+                    <div class="metric-info">
+                        <p>Pempek Keluar</p>
+                        <h2 id="metrikTotalQty">0 Pcs</h2>
+                    </div>
+                </div>
+                <div class="metric-box red">
+                    <div class="metric-icon-wrapper"><i data-lucide="trending-up"></i></div>
+                    <div class="metric-info">
+                        <p>Pempek Terjual</p>
+                        <h2 id="metrikHabis">0 Pcs</h2>
+                    </div>
+                </div>
+                <div class="metric-box amber">
+                    <div class="metric-icon-wrapper"><i data-lucide="refresh-cw"></i></div>
+                    <div class="metric-info">
+                        <p>Pempek Sisa</p>
+                        <h2 id="metrikSisa">0 Pcs</h2>
+                    </div>
+                </div>
+                <div class="metric-box emerald">
+                    <div class="metric-icon-wrapper"><i data-lucide="coins"></i></div>
+                    <div class="metric-info">
+                        <p>Omzet Kedai</p>
+                        <h2 id="metrikOmzet">Rp 0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Visualisasi Tren Penjualan</h3>
+                
+                <div class="filter-wrapper">
+                    <div class="filter-group">
+                        <label>Kategori Log</label>
+                        <select id="filterTipe" onchange="prosesDataFilter()">
+                            <option value="SEMUA">Semua Kategori</option>
+                            <option value="Habis (Terjual)">Hanya Pempek Terjual</option>
+                            <option value="Sisa (Tutup Shift)">Hanya Pempek Sisa</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tanggal Mulai</label>
+                        <input type="date" id="filterTglMulai" onchange="prosesDataFilter()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Tanggal Selesai</label>
+                        <input type="date" id="filterTglSelesai" onchange="prosesDataFilter()">
+                    </div>
+                    <button class="btn-reset-filter" onclick="resetFilterTanggal()">Reset Filter</button>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="chartLaporan"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Rekaman Aktivitas Transaksi</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Kategori</th>
+                                <th style="text-align: center; width: 20%;">Volume</th>
+                                <th style="width: 30%;">Waktu Sinkronisasi</th>
+                                <th style="text-align: right; width: 25%;">Total Bruto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelLaporanBody">
+                            <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-body);">Menghubungkan ke database cloud...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="outlet_dashboard.html" class="bottom-nav-item">
+            <i data-lucide="layout-grid"></i>Dashboard
+        </a>
+        <a href="outlet_stok.html" class="bottom-nav-item">
+            <i data-lucide="layers"></i>Stok
+        </a>
+        <a href="outlet_jual.html" class="bottom-nav-item">
+            <i data-lucide="calculator"></i>Transaksi
+        </a>
+        <a href="outlet_laporan.html" class="bottom-nav-item active">
+            <i data-lucide="line-chart"></i>Laporan
+        </a>
+        <a href="#" onclick="logout()" class="bottom-nav-item logout-mobile">
+            <i data-lucide="power"></i>Keluar
+        </a>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzzmDaiz54a98Zb-pmZkpNkL3N0JB6fQZDpKZMDsIARNoOwVfnoRIuMlvtagd2jAHGc/exec";
+        
+        let dataMasterRiwayat = []; 
+        let instanceChart = null; 
+
+        async function ambilDataLaporan() {
+            try {
+                const response = await fetch(`${API_URL}?action=readAllHistory`);
+                dataMasterRiwayat = await response.json();
+                
+                if (!Array.isArray(dataMasterRiwayat)) {
+                    dataMasterRiwayat = [];
+                }
+                
+                prosesDataFilter(); 
+            } catch (error) {
+                console.error(error);
+                document.getElementById("tabelLaporanBody").innerHTML = "<tr><td colspan='4' style='text-align:center; color:#ef4444; font-weight:600; padding:30px;'>Koneksi database terputus. Silakan muat ulang halaman.</td></tr>";
+            }
+        }
+
+        function normalisasiKeTanggalStandar(dateStr) {
+            if (!dateStr) return "";
+            try {
+                const d = new Date(dateStr);
+                if (!isNaN(d.getTime())) {
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
+                
+                const match = dateStr.toString().match(/^(\d{4})[-/](\d{2})[-/](\d{2})/);
+                if (match) {
+                    return `${match[1]}-${match[2]}-${match[3]}`;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            return "";
+        }
+
+        function prosesDataFilter() {
+            const tipeSelected = document.getElementById("filterTipe").value;
+            const tglMulaiStr = document.getElementById("filterTglMulai").value; 
+            const tglSelesaiStr = document.getElementById("filterTglSelesai").value; 
+
+            let dataTerfilter = dataMasterRiwayat.filter(item => {
+                const itemTipe = item.tipe ? item.tipe.toString().trim() : "";
+                const cocokTipe = (tipeSelected === "SEMUA" || itemTipe === tipeSelected.trim());
+                
+                let cocokTanggal = true;
+                if (item.tanggal) {
+                    const tglItemClean = normalisasiKeTanggalStandar(item.tanggal);
+                    
+                    if (tglItemClean) {
+                        if (tglMulaiStr && tglItemClean < tglMulaiStr) {
+                            cocokTanggal = false;
+                        }
+                        if (tglSelesaiStr && tglItemClean > tglSelesaiStr) {
+                            cocokTanggal = false;
+                        }
+                    } else if (tglMulaiStr || tglSelesaiStr) {
+                        cocokTanggal = false; 
+                    }
+                } else if (tglMulaiStr || tglSelesaiStr) {
+                    cocokTanggal = false; 
+                }
+                
+                return cocokTipe && cocokTanggal;
+            });
+
+            let totalQty = 0, totalHabis = 0, totalSisa = 0, totalOmzet = 0;
+            
+            dataTerfilter.forEach(item => {
+                const qtyVal = parseInt(item.qty) || 0;
+                const hargaVal = parseFloat(item.total_harga) || 0;
+                const itemTipe = item.tipe ? item.tipe.toString().trim() : "";
+
+                totalQty += qtyVal;
+                if (itemTipe === "Habis (Terjual)") {
+                    totalHabis += qtyVal;
+                    totalOmzet += hargaVal;
+                } else if (itemTipe === "Sisa (Tutup Shift)") {
+                    totalSisa += qtyVal;
+                }
+            });
+
+            document.getElementById("metrikTotalQty").innerText = `${totalQty} Pcs`;
+            document.getElementById("metrikHabis").innerText = `${totalHabis} Pcs`;
+            document.getElementById("metrikSisa").innerText = `${totalSisa} Pcs`;
+            document.getElementById("metrikOmzet").innerText = `Rp ${totalOmzet.toLocaleString('id-ID')}`;
+
+            renderTabel(dataTerfilter);
+            renderGrafik(dataTerfilter);
+        }
+
+        function resetFilterTanggal() {
+            document.getElementById("filterTglMulai").value = "";
+            document.getElementById("filterTglSelesai").value = "";
+            document.getElementById("filterTipe").value = "SEMUA";
+            prosesDataFilter();
+        }
+
+        function renderTabel(data) {
+            const tbody = document.getElementById("tabelLaporanBody");
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--text-body); font-weight:500;'>Tidak ditemukan aktivitas pada parameter filter ini.</td></tr>";
+                return;
+            }
+
+            data.forEach(item => {
+                const itemTipe = item.tipe ? item.tipe.toString().trim() : "";
+                const badgeClass = itemTipe === "Habis (Terjual)" ? "badge-habis" : "badge-sisa";
+                
+                const hargaVal = parseFloat(item.total_harga) || 0;
+                const formatHarga = hargaVal > 0 ? `Rp ${hargaVal.toLocaleString('id-ID')}` : "-";
+                const qtyVal = parseInt(item.qty) || 0;
+                const tanggalVal = item.tanggal ? item.tanggal : "-";
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="badge ${badgeClass}">${itemTipe}</span></td>
+                        <td style="text-align:center; font-weight:700;">${qtyVal} Pcs</td>
+                        <td style="color: var(--text-body); font-weight:500;">${tanggalVal}</td>
+                        <td style="text-align:right; font-weight:700; color:#ff5100;">${formatHarga}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderGrafik(data) {
+            const canvasEl = document.getElementById('chartLaporan');
+            if (!canvasEl) return;
+            
+            const ctx = canvasEl.getContext('2d');
+            if (instanceChart) { instanceChart.destroy(); }
+
+            let labelTanggal = [];
+            let datasetHabis = {};
+            let datasetSisa = {};
+
+            let dataKronologis = [...data].reverse();
+
+            dataKronologis.forEach(item => {
+                if (item.tanggal) {
+                    const tglSingkat = normalisasiKeTanggalStandar(item.tanggal);
+                    if (tglSingkat) {
+                        if (!labelTanggal.includes(tglSingkat)) {
+                            labelTanggal.push(tglSingkat);
+                        }
+                        
+                        const qtyVal = parseInt(item.qty) || 0;
+                        const itemTipe = item.tipe ? item.tipe.toString().trim() : "";
+
+                        if (itemTipe === "Habis (Terjual)") {
+                            datasetHabis[tglSingkat] = (datasetHabis[tglSingkat] || 0) + qtyVal;
+                        } else if (itemTipe === "Sisa (Tutup Shift)") {
+                            datasetSisa[tglSingkat] = (datasetSisa[tglSingkat] || 0) + qtyVal;
+                        }
+                    }
+                }
+            });
+
+            labelTanggal.sort();
+
+            let dataHabisFinal = labelTanggal.map(tgl => datasetHabis[tgl] || 0);
+            let dataSisaFinal = labelTanggal.map(tgl => datasetSisa[tgl] || 0);
+
+            instanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labelTanggal,
+                    datasets: [
+                        {
+                            label: 'Terjual',
+                            data: dataHabisFinal,
+                            backgroundColor: '#ff5100',
+                            borderRadius: 8,
+                            barThickness: 16
+                        },
+                        {
+                            label: 'Sisa Shift',
+                            data: dataSisaFinal,
+                            backgroundColor: '#f59e0b',
+                            borderRadius: 8,
+                            barThickness: 16
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, font: { size: 12, weight: '600', family: 'Plus Jakarta Sans' } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f5ede0' }, ticks: { font: { family: 'Plus Jakarta Sans', weight: 500 } } },
+                        x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', weight: 500 } } }
+                    }
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+
+        window.onload = function() {
+            ambilDataLaporan();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>

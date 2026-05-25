@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063177.png">
+    <meta name="theme-color" content="#ff6b00">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          // Kita gunakan './sw.js' agar selalu membaca file sw.js di folder yang sama (root)
+          navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker Registered!', reg))
+            .catch(err => console.log('Service Worker Failed:', err));
+        });
+      }
+    </script>
+    
+  
+ 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Pempek 1000</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --bg: #fff7ed;
+            --text: #451a03;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            width: 100%;
+            max-width: 350px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #92400e;
+            display: block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #fed7aa;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.2s;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-login:disabled {
+            background: #fdba74;
+            cursor: not-allowed;
+        }
+
+        #pesanEror {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <div class="logo">🥟</div>
+        <h2>Pempek 1000</h2>
+        <p>Silakan login untuk masuk ke sistem.</p>
+
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="user" placeholder="Masukkan username" autocomplete="username">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button class="btn-login" id="btnLogin" onclick="prosesLogin()">Masuk Sekarang</button>
+        <p id="pesanEror">Username atau Password salah!</p>
+    </div>
+
+    <script>
+        // ⚠️ PENTING: Ganti isi string di bawah ini dengan URL hasil "New Deployment" Apps Script terbarumu!
+        const API_URL = "https://script.google.com/macros/s/AKfycbwhJciXmzHgRZlYp7S-iPclTnV9Z7-cc-psrK8r7g6dj0gYXom1g6s8mJnI5k371cmgtA/exec";
+
+        async function prosesLogin() {
+            const user = document.getElementById("user").value.trim();
+            const pass = document.getElementById("pass").value.trim();
+            const btn = document.getElementById("btnLogin");
+            const eror = document.getElementById("pesanEror");
+
+            if (!user || !pass) return alert("Isi semua bidang!");
+
+            // Efek Loading pas tombol diklik
+            btn.disabled = true;
+            btn.innerText = "⏳ Mengecek...";
+            eror.style.display = "none";
+
+            try {
+                // Bersihkan sisa-sisa session lama di browser sebelum login baru
+                localStorage.clear();
+
+                const responsServer = await fetch(`${API_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
+                const res = await responsServer.json();
+
+                if (res.success) {
+                    // 1. Amankan data response dari server (.gs) ke LocalStorage browser
+                    localStorage.setItem("nama", res.nama);
+                    localStorage.setItem("role", res.role);
+                    localStorage.setItem("outlet", res.outlet);
+                    localStorage.setItem("spreadsheet_id", res.spreadsheetId); // Menyimpan ID database cabang secara dinamis
+                    localStorage.setItem("isLoggedIn", "true");
+
+                    // 2. Ubah ke huruf kecil semua agar AMAN dari typo huruf kapital
+                    const outletCek = (res.outlet || "").trim().toLowerCase();
+                    const roleCek = (res.role || "").trim().toLowerCase();
+
+                    // 3. LOGIKA ALUR PENGALIHAN HALAMAN BERDASARKAN OUTLET DATABASE
+                    if (outletCek === "sako") {
+                        alert(`Selamat datang ${res.nama}! Mengalihkan ke Dashboard Sako.`);
+                        window.location.href = "outlet_dashboard1.html";
+                    }
+                    else if (outletCek === "bawah kemang") {
+                        alert(`Selamat datang ${res.nama}! Mengalihkan ke Dashboard Bawah Kemang.`);
+                        window.location.href = "outlet_dashboard.html";
+                    }
+                    else if (outletCek === "pusat" || roleCek === "owner") {
+                        alert(`Selamat datang Owner ${res.nama}! Membuka Dashboard Utama.`);
+                        window.location.href = "owner_dashboard.html";
+                    }
+                    else {
+                        alert(`Akses Ditangguhkan: Cabang '${res.outlet}' belum dikonfigurasi di halaman web.`);
+                    }
+
+                } else {
+                    eror.innerText = res.msg || "Username atau Password salah!";
+                    eror.style.display = "block";
+                }
+            } catch (e) {
+                console.error(e);
+                eror.innerText = "Gagal terhubung ke server! Periksa link API_URL atau Deployment Apps Script.";
+                eror.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Masuk Sekarang";
+            }
+        }
+
+        // Fitur Enter untuk login
+        document.getElementById("pass").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                prosesLogin();
+            }
+        });
+    </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.log('SW gagal:', err));
+    });
+  }
+</script>
+</body>
+
+</html>
