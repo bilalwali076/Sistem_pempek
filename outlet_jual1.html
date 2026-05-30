@@ -125,24 +125,18 @@
         .btn-close-shift { background: #1e1b18; color: white; }
         .btn-close-shift:hover { background: #2d2925; transform: translateY(-2px); }
 
-        /* --- OPTIMIZED TABLE SYSTEM (KECIL & ANTI GESER) --- */
-        .table-container { width: 100%; overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        /* --- TABLE SYSTEM --- */
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
         th { 
-            text-align: left; padding: 12px 10px; background: #faf8f5; font-size: 10px; 
-            font-weight: 800; color: #a1978c; border-bottom: 2px solid var(--border-soft); text-transform: uppercase; letter-spacing: 0.03em;
-            word-wrap: break-word;
+            text-align: left; padding: 18px 24px; background: #faf8f5; font-size: 11px; 
+            font-weight: 800; color: #a1978c; border-bottom: 2px solid var(--border-soft); text-transform: uppercase; letter-spacing: 0.05em;
         }
-        td { 
-            padding: 12px 10px; border-bottom: 1px solid var(--border-soft); font-size: 12.5px; 
-            font-weight: 600; color: var(--text-title); vertical-align: middle; 
-            word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
-        }
+        td { padding: 18px 24px; border-bottom: 1px solid var(--border-soft); font-size: 14px; font-weight: 600; color: var(--text-title); vertical-align: middle; }
         tr:hover td { background-color: #fffdfa; }
         tr:last-child td { border-bottom: none; }
         
-        /* Badge dibuat lebih ringkas */
-        .badge { padding: 4px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .badge { padding: 6px 14px; border-radius: 14px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
         .badge-habis { background: #fee2e2; color: #991b1b; }
         .badge-sisa { background: #fdf2e9; color: #7c2d12; }
         
@@ -163,20 +157,13 @@
             .fluid-header p { font-size: 13px; }
             
             .content-body { padding: 0 16px; margin-top: -45px; }
-            .card { padding: 22px 14px; border-radius: 28px; box-shadow: var(--shadow-card); border: none; margin-bottom: 20px; }
+            .card { padding: 26px 16px; border-radius: 28px; box-shadow: var(--shadow-card); border: none; margin-bottom: 20px; }
             .filter-wrapper { padding: 18px; border-radius: 20px; }
             .filter-group { min-width: 100%; }
             .info-grid { grid-template-columns: 1fr; gap: 12px; }
             .action-flex { flex-direction: column; }
             .btn-premium { width: 100%; justify-content: center; }
 
-            /* Ukuran font tabel diperkecil khusus di mobile agar pas 1 layar */
-           /* --- TAMBAHAN BAGIAN RIWAYAT TABEL MENGECIL UNTUK HP --- */
-            table { min-width: 100% !important; table-layout: fixed !important; }
-            th, td { padding: 12px 8px !important; font-size: 11.5px !important; }
-            th { font-size: 10px !important; }
-            .badge { padding: 4px 8px !important; font-size: 10px !important; }
-            /* -------------------------------------------------------- */
             .bottom-nav {
                 display: flex; position: fixed; bottom: 20px; left: 20px; right: 20px; 
                 background: #1e1b18; height: 76px; border-radius: 28px;
@@ -206,22 +193,23 @@
     <div class="sidebar" id="sidebar">
         <h2>🥟 <span>Kasir Pempek</span></h2>
         <p class="section-title">Menu Utama</p>
-         <div class="bottom-nav">
-        <a href="outlet_dashboard1.html" class="bottom-nav-item">
-            <i data-lucide="layout-grid"></i>Dashboard
-        </a>
-        <a href="outlet_stok1.html" class="bottom-nav-item">
-            <i data-lucide="layers"></i>Stok
-        </a>
-        <a href="outlet_jual1.html" class="bottom-nav-item active">
-            <i data-lucide="calculator"></i>Transaksi
-        </a>
-        <a href="outlet_laporan 1.html" class="bottom-nav-item ">
-            <i data-lucide="line-chart"></i>Laporan
-        </a>
-        <a href="#" onclick="logout()" class="bottom-nav-item logout-mobile">
-            <i data-lucide="power"></i>Keluar
-        </a>
+        <div class="nav-container">
+            <a href="outlet_dashboard1.html" class="nav-item ">
+                <i data-lucide="layout-grid"></i> Dashboard
+            </a>
+            <a href="outlet_stok1.html" class="nav-item">
+                <i data-lucide="layers"></i> Stok Menu
+            </a>
+            <a href="outlet_jual1.html" class="nav-item active">
+                <i data-lucide="calculator"></i> Pencatatan Jual
+            </a>
+            <a href="outlet_laporan 1.html" class="nav-item">
+                <i data-lucide="line-chart"></i> Laporan
+            </a>
+        </div>
+        <button onclick="logout()" class="btn-logout">
+            <i data-lucide="power"></i> Keluar Sesi
+        </button>
     </div>
 
     <div class="main">
@@ -271,44 +259,44 @@
             </div>
 
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                    <h3><i data-lucide="shopping-bag" style="color:#ff5100"></i> Riwayat Penjualan</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
+                    <h3><i data-lucide="shopping-bag" style="color:#ff5100"></i> Riwayat Penjualan (Sheet Penjualan)</h3>
                     <button onclick="loadInitialData()" class="btn-refresh-data">
-                        <i data-lucide="refresh-cw" style="width:12px; height:12px;"></i> Refresh
+                        <i data-lucide="refresh-cw" style="width:13px; height:13px;"></i> Refresh Data
                     </button>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 25%;">KASIR</th>
-                                <th style="width: 25%; text-align: center;">QTY</th>
-                                <th style="width: 28%;">WAKTU</th>
-                                <th style="text-align: right; width: 22%;">TOTAL</th>
+                                <th style="width: 25%;">ADMIN / KASIR</th>
+                                <th style="width: 25%; text-align: center;">PEMPEK HABIS (QTY)</th>
+                                <th style="width: 25%;">TANGGAL TRANSAKSI</th>
+                                <th style="text-align: right; width: 25%;">TOTAL HARIAN</th>
                             </tr>
                         </thead>
                         <tbody id="tabelJual">
-                            <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-body);">Memuat data...</td></tr>
+                            <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--text-body);">Memuat data penjualan...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="card">
-                <div style="margin-bottom: 20px;">
-                    <h3><i data-lucide="history" style="color:var(--text-body)"></i> Riwayat Sisa Stok</h3>
+                <div style="margin-bottom: 24px;">
+                    <h3><i data-lucide="history" style="color:var(--text-body)"></i> Riwayat Sisa Stok (Sheet Tutup Shift)</h3>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 35%;">ADMIN CLOSING</th>
-                                <th style="width: 30%; text-align: center;">SISA RESET</th>
-                                <th style="width: 35%;">WAKTU RESET</th>
+                                <th style="width: 35%;">ADMIN YANG MENUTUP</th>
+                                <th style="width: 30%; text-align: center;">SISA STOK DIRESET (QTY)</th>
+                                <th style="width: 35%;">WAKTU TUTUP SHIFT</th>
                             </tr>
                         </thead>
                         <tbody id="tabelTutupShift">
-                            <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-body);">Memuat data...</td></tr>
+                            <tr><td colspan="3" style="text-align:center; padding:30px; color:var(--text-body);">Memuat data penutupan shift...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -321,13 +309,13 @@
         <a href="outlet_dashboard.html" class="bottom-nav-item">
             <i data-lucide="layout-grid"></i>Dashboard
         </a>
-        <a href="outlet_stok.html" class="bottom-nav-item">
+        <a href="outlet_stok1.html" class="bottom-nav-item">
             <i data-lucide="layers"></i>Stok
         </a>
         <a href="outlet_jual.html" class="bottom-nav-item active">
             <i data-lucide="calculator"></i>Transaksi
         </a>
-        <a href="outlet_laporan.html" class="bottom-nav-item">
+        <a href="outlet_laporan 1.html" class="bottom-nav-item">
             <i data-lucide="line-chart"></i>Laporan
         </a>
         <a href="#" onclick="logout()" class="bottom-nav-item logout-mobile">
@@ -336,7 +324,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyAOaz_I9eHCw2GFGhJEnyU629byzcuqkRX8ZzilbntpEeTvtXXtKnK_AG1BuRAKHBV/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzzmDaiz54a98Zb-pmZkpNkL3N0JB6fQZDpKZMDsIARNoOwVfnoRIuMlvtagd2jAHGc/exec";
         
         let hargaSatuanRef = 1000; 
         let sisaStokGlobal = 0;
@@ -375,7 +363,7 @@
                 const history = await resHist.json();
                 tbodyJual.innerHTML = "";
                 if(!history || !Array.isArray(history) || history.length === 0) {
-                    tbodyJual.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px; color:var(--text-body);'>Belum ada data penjualan harian.</td></tr>";
+                    tbodyJual.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--text-body);'>Belum ada data penjualan harian.</td></tr>";
                 } else {
                     [...history].reverse().forEach(h => {
                         tbodyJual.innerHTML += `<tr>
@@ -390,7 +378,7 @@
                 const historyTutup = await resTutup.json();
                 tbodyTutup.innerHTML = "";
                 if (!historyTutup || !Array.isArray(historyTutup) || historyTutup.length === 0) {
-                    tbodyTutup.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px; color:var(--text-body);'>Belum pernah tutup shift.</td></tr>";
+                    tbodyTutup.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--text-body);'>Belum pernah melakukan penutupan shift.</td></tr>";
                 } else {
                     [...historyTutup].reverse().forEach(t => {
                         tbodyTutup.innerHTML += `<tr>
@@ -403,8 +391,8 @@
 
             } catch (e) { 
                 console.error(e);
-                tbodyJual.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#dc2626; padding:20px; font-weight:700;'>Gagal sinkronisasi data cloud.</td></tr>";
-                tbodyTutup.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#dc2626; padding:20px; font-weight:700;'>Gagal memuat log sisa stok.</td></tr>";
+                tbodyJual.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#dc2626; padding:30px; font-weight:700;'>Gagal sinkronisasi data cloud penjualan.</td></tr>";
+                tbodyTutup.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#dc2626; padding:30px; font-weight:700;'>Gagal memuat data log sisa stok.</td></tr>";
             }
         }
 
@@ -443,7 +431,7 @@
                 alert("Gagal mengamankan data transaksi penjualan."); 
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = "<i data-lucide='check-square'></i> Simpan Transaksi";
+                btn.innerHTML = "<i class='check-square'></i> Simpan Transaksi";
                 lucide.createIcons();
             }
         }
@@ -475,7 +463,7 @@
                 alert("Gagal memproses penutupan toko ke server.");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = "<i data-lucide='lock'></i> Selesai / Tutup Shift (Reset 0)";
+                btn.innerHTML = "<i class='lock'></i> Selesai / Tutup Shift (Reset 0)";
                 lucide.createIcons();
             }
         }
